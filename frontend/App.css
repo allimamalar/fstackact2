@@ -1,0 +1,5 @@
+.App { max-width: 600px; margin: 0 auto; padding: 20px; font-family: sans-serif; }
+.note-form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.note-form input, .note-form textarea { padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+.note-card { border: 1px solid #eee; padding: 15px; margin-bottom: 10px; border-radius: 8px; position: relative; }
+.note-card button { color: red; border: none; background: none; cursor: pointer; font-weight: bold; }
