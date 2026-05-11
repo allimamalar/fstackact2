@@ -5,7 +5,15 @@ const cors = require('cors');
 const app = express();
 
 // Middleware
-app.use(cors()); // Allows React to talk to this server
+
+const cors = require('cors');
+
+// This allows your specific frontend URL to access the data
+app.use(cors({
+    origin: "https://fstackact2.vercel.app",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
+})); // Allows React to talk to this server
 app.use(express.json()); // Allows the server to read JSON data
 
 /// 1. Database Connection (Cloud Atlas)
