@@ -8,9 +8,11 @@ const app = express();
 app.use(cors()); // Allows React to talk to this server
 app.use(express.json()); // Allows the server to read JSON data
 
-// 1. Database Connection
-mongoose.connect('mongodb://127.0.0.1:27017/notes_db')
-    .then(() => console.log("✅ Connected to MongoDB"))
+/// 1. Database Connection (Cloud Atlas)
+const DB_URI = "mongodb+srv://allimamalararivudainambi:MyNotessaver2026@cluster0.foh83nf.mongodb.net/notes_db?appName=Cluster0";
+
+mongoose.connect(DB_URI)
+    .then(() => console.log("🚀 ✅ Connected to Cloud MongoDB Atlas"))
     .catch(err => console.error("❌ MongoDB connection error:", err));
 
 // 2. Note Schema & Model
