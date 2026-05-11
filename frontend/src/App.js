@@ -8,9 +8,8 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [editId, setEditId] = useState(null);
 
-  // Centralized API URL
-  const API_BASE = "http://10.36.241.12:5000/api/notes";
-
+  // Centralized API URL (Live Vercel Backend)
+const API_BASE = "https://your-vercel-project-name.vercel.app/api/notes";
   // 1. Fetch Notes from Backend
   const fetchNotes = async () => {
     try {
