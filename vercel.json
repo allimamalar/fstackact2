@@ -11,8 +11,19 @@
       "config": { "distDir": "build" }
     }
   ],
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "server.js" },
-    { "source": "/(.*)", "destination": "/frontend/$1", "check": true }
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "server.js"
+    },
+    {
+      "src": "/static/(.*)",
+      "dest": "/frontend/static/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/$1",
+      "continue": true
+    }
   ]
 }
