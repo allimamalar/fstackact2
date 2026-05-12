@@ -10,7 +10,7 @@ function App() {
 
   // UPDATED: Must include /api/notes to match your Backend routes
   // Ensure it looks exactly like this:
-const API_BASE = "https://student-notes-backend.vercel.app/api/notes";
+const API_BASE = "[https://fstackact2.vercel.app/api/notes](https://fstackact2.vercel.app/api/notes)";
   // 1. Fetch Notes from Backend
   const fetchNotes = async () => {
     try {
