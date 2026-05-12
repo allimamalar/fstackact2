@@ -6,7 +6,8 @@ const app = express();
 
 // Middleware
 app.use(cors({
-   origin: process.env.FRONTEND_URL, // Ensure this matches your Vercel Environment Variable
+   // This refers to the FRONTEND_URL variable you set in Vercel
+   origin: process.env.FRONTEND_URL || "https://fstackact2.vercel.app", 
    methods: ["GET", "POST", "PUT", "DELETE"],
    credentials: true
 }));
@@ -28,6 +29,12 @@ const noteSchema = new mongoose.Schema({
 const Note = mongoose.model('Note', noteSchema);
 
 // 3. API Routes
+
+// NEW: Root route to fix the "Cannot GET /" message
+app.get('/', (req, res) => {
+    res.send("🚀 Backend is live! Access data at /api/notes");
+});
+
 // GET: Fetch all notes
 app.get('/api/notes', async (req, res) => {
     try {
@@ -59,7 +66,7 @@ app.delete('/api/notes/:id', async (req, res) => {
     }
 });
 
-// 4. Start Server (Vercel uses process.env.PORT)
+// 4. Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`🚀 Backend running on port ${PORT}`);
