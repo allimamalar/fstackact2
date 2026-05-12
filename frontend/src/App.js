@@ -8,12 +8,18 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [editId, setEditId] = useState(null);
 
-  // Centralized API URL (Live Vercel Backend)
-const API_BASE = "https://student-notes-backend.vercel.app/";
+  // UPDATED: Must include /api/notes to match your Backend routes
+  const API_BASE = "https://student-notes-backend.vercel.app/api/notes";
+
   // 1. Fetch Notes from Backend
   const fetchNotes = async () => {
     try {
       const response = await fetch(API_BASE);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
       setNotes(data);
       setLoading(false);
@@ -36,6 +42,7 @@ const API_BASE = "https://student-notes-backend.vercel.app/";
 
     try {
       if (editId) {
+        // PUT request to /api/notes/:id
         await fetch(`${API_BASE}/${editId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -43,6 +50,7 @@ const API_BASE = "https://student-notes-backend.vercel.app/";
         });
         setEditId(null);
       } else {
+        // POST request to /api/notes
         await fetch(API_BASE, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -53,13 +61,15 @@ const API_BASE = "https://student-notes-backend.vercel.app/";
       setContent('');
       fetchNotes(); 
     } catch (error) {
-      alert("Server error. Please check if the backend terminal is running.");
+      alert("Server error. Please check your backend deployment.");
     }
   };
 
   // 3. Delete Note
   const deleteNote = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this note?")) return;
     try {
+      // DELETE request to /api/notes/:id
       await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
       setNotes(notes.filter(note => note._id !== id));
     } catch (error) {
@@ -107,11 +117,11 @@ const API_BASE = "https://student-notes-backend.vercel.app/";
       <hr style={{ margin: '40px 0', border: '0', borderTop: '1px solid #ddd' }} />
 
       {loading ? (
-        <p style={{textAlign: 'center'}}>Connecting to backend...</p>
+        <p style={{textAlign: 'center'}}>Connecting to database...</p>
       ) : (
         <div className="notes-list">
           {notes.length === 0 && (
-            <p style={{textAlign: 'center', gridColumn: '1/-1'}}>No notes found in database.</p>
+            <p style={{textAlign: 'center', gridColumn: '1/-1'}}>No notes found.</p>
           )}
           {notes.map(note => (
             <div key={note._id} className="note-card">
@@ -131,5 +141,4 @@ const API_BASE = "https://student-notes-backend.vercel.app/";
   );
 }
 
-// THIS LINE IS ESSENTIAL
 export default App;

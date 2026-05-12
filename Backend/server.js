@@ -5,22 +5,18 @@ const cors = require('cors');
 const app = express();
 
 // Middleware
-
-const cors = require('cors');
-
-// This allows your specific frontend URL to access the data
 app.use(cors({
-    origin: "https://fstackact2.vercel.app",
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true
-})); // Allows React to talk to this server
-app.use(express.json()); // Allows the server to read JSON data
+   origin: process.env.FRONTEND_URL, // Ensure this matches your Vercel Environment Variable
+   methods: ["GET", "POST", "PUT", "DELETE"],
+   credentials: true
+}));
+app.use(express.json());
 
-/// 1. Database Connection (Cloud Atlas)
+// 1. Database Connection
 const DB_URI = "mongodb+srv://allimamalararivudainambi:MyNotessaver2026@cluster0.foh83nf.mongodb.net/notes_db?appName=Cluster0";
 
 mongoose.connect(DB_URI)
-    .then(() => console.log("🚀 ✅ Connected to Cloud MongoDB Atlas"))
+    .then(() => console.log("🚀 ✅ Connected to MongoDB Atlas"))
     .catch(err => console.error("❌ MongoDB connection error:", err));
 
 // 2. Note Schema & Model
@@ -32,7 +28,6 @@ const noteSchema = new mongoose.Schema({
 const Note = mongoose.model('Note', noteSchema);
 
 // 3. API Routes
-
 // GET: Fetch all notes
 app.get('/api/notes', async (req, res) => {
     try {
@@ -54,20 +49,6 @@ app.post('/api/notes', async (req, res) => {
     }
 });
 
-// PUT: Update an existing note
-app.put('/api/notes/:id', async (req, res) => {
-    try {
-        const updatedNote = await Note.findByIdAndUpdate(
-            req.params.id, 
-            req.body, 
-            { new: true } 
-        );
-        res.json(updatedNote);
-    } catch (err) {
-        res.status(400).json({ message: "Error updating note" });
-    }
-});
-
 // DELETE: Remove a note
 app.delete('/api/notes/:id', async (req, res) => {
     try {
@@ -78,10 +59,8 @@ app.delete('/api/notes/:id', async (req, res) => {
     }
 });
 
-// 4. Start Server
-// 4. Start Server
-const PORT = 5000;
-// Using '0.0.0.0' allows the server to accept requests from your network IP
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Backend server running and accessible at http://10.36.241.12:${PORT}`);
+// 4. Start Server (Vercel uses process.env.PORT)
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`🚀 Backend running on port ${PORT}`);
 });
