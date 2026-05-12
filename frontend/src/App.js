@@ -9,7 +9,8 @@ function App() {
   const [editId, setEditId] = useState(null);
 
   // UPDATED: Must include /api/notes to match your Backend routes
-  const API_BASE = "https://student-notes-backend.vercel.app/api/notes";
+  // Ensure it looks exactly like this:
+const API_BASE = "https://student-notes-backend.vercel.app/api/notes";
 
   // 1. Fetch Notes from Backend
   const fetchNotes = async () => {
