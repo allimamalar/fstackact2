@@ -7,50 +7,52 @@ const notesRouter = require('./routes/notes');
 dotenv.config();
 
 const app = express();
-app.use(cors());
-app.use(express.json()); // must be before routes
 
-// JSON parse error handler (body-parser / express.json)
+// Update CORS to trust your frontend once you have the URL
+app.use(cors());
+app.use(express.json());
+
+// JSON parse error handler
 app.use((err, req, res, next) => {
   if (err && (err.type === 'entity.parse.failed' || err instanceof SyntaxError)) {
-    console.error('Invalid JSON payload:', err.message || err);
     return res.status(400).json({ error: 'Invalid JSON payload' });
   }
   next(err);
 });
 
-// health
-app.get('/', (req, res) => res.json({ ok: true }));
+// Health check
+app.get('/', (req, res) => res.json({ ok: true, message: "Backend is live!" }));
 
 // API routes
 app.use('/api/notes', notesRouter);
 
-// connect DB
-const mongoUri =
-  process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/notesdb';
+// Database Connection Logic (Optimized for Serverless)
+const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI;
 
-async function connectDB() {
+const connectDB = async () => {
+  if (mongoose.connection.readyState >= 1) return; // Use existing connection
   try {
     await mongoose.connect(mongoUri);
     console.log('✅ Connected to MongoDB');
   } catch (err) {
     console.error('❌ MongoDB connection error:', err);
-    process.exit(1);
   }
+};
+
+// IMPORTANT: For Vercel, we don't call app.listen() in production.
+// Vercel handles the execution.
+if (process.env.NODE_ENV !== 'production') {
+  const port = process.env.PORT || 3001;
+  connectDB().then(() => {
+    app.listen(port, () => console.log(`🚀 Local Server running on port ${port}`));
+  });
 }
-connectDB();
 
-// start server
-const port = process.env.PORT || 3001;
-const server = app.listen(port, () => {
-  console.log(`🚀 Backend running on port ${port}`);
+// Connect to DB on every request (Mongoose handles the caching)
+app.use(async (req, res, next) => {
+  await connectDB();
+  next();
 });
 
-server.on('error', (err) => {
-  if (err && err.code === 'EADDRINUSE') {
-    console.error(`Port ${port} is already in use. Set PORT env or free the port and retry.`);
-    process.exit(1);
-  }
-  console.error('Server error:', err);
-  process.exit(1);
-});
+// Export the app for Vercel
+module.exports = app;
