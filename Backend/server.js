@@ -6,13 +6,13 @@ const notesRouter = require('./routes/notes');
 
 dotenv.config();
 
+// Update CORS to trust your frontend once you have the URL
+const express = require('express');
+const cors = require('cors'); // 1. Require it first at the top
 const app = express();
 
-// Update CORS to trust your frontend once you have the URL
-app.use(cors());
-const cors = require('cors');
-
-app.use(express.json());
+app.use(cors()); // 2. Then use it
+app.use(express.json()); // 3. Then handle JSON
 
 // JSON parse error handler
 app.use((err, req, res, next) => {
