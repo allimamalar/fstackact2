@@ -10,6 +10,8 @@ const app = express();
 
 // Update CORS to trust your frontend once you have the URL
 app.use(cors());
+const cors = require('cors');
+
 app.use(express.json());
 
 // JSON parse error handler
