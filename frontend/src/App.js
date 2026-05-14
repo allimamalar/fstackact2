@@ -10,7 +10,7 @@ function App() {
 
   // UPDATED: Must include /api/notes to match your Backend routes
   // Ensure it looks exactly like this:
-const API_BASE = "[https://fstackact2.vercel.app/api/notes](https://fstackact2.vercel.app/api/notes)";
+  const API_BASE = "http://localhost:3001/api/notes";
   // 1. Fetch Notes from Backend
   const fetchNotes = async () => {
     try {
@@ -41,26 +41,33 @@ const API_BASE = "[https://fstackact2.vercel.app/api/notes](https://fstackact2.v
     const noteData = { title, content };
 
     try {
+      let response;
       if (editId) {
         // PUT request to /api/notes/:id
-        await fetch(`${API_BASE}/${editId}`, {
+        response = await fetch(`${API_BASE}/${editId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(noteData),
         });
-        setEditId(null);
       } else {
         // POST request to /api/notes
-        await fetch(API_BASE, {
+        response = await fetch(API_BASE, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(noteData),
         });
       }
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      setEditId(null);
       setTitle('');
       setContent('');
       fetchNotes(); 
     } catch (error) {
+      console.error("Error saving note:", error);
       alert("Server error. Please check your backend deployment.");
     }
   };
@@ -70,9 +77,13 @@ const API_BASE = "[https://fstackact2.vercel.app/api/notes](https://fstackact2.v
     if (!window.confirm("Are you sure you want to delete this note?")) return;
     try {
       // DELETE request to /api/notes/:id
-      await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
+      const response = await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       setNotes(notes.filter(note => note._id !== id));
     } catch (error) {
+      console.error("Error deleting note:", error);
       alert("Failed to delete the note.");
     }
   };
