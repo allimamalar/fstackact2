@@ -1,56 +1,64 @@
 const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
 const mongoose = require('mongoose');
-const notesRouter = require('./routes/notes');
-
-dotenv.config();
+const cors = require('cors');
+require('dotenv').config();
 
 const app = express();
 
-// 1. Setup Middleware
-app.use(cors()); 
-app.use(express.json()); 
+// Middleware
+app.use(cors());
+app.use(express.json());
 
-// 2. JSON parse error handler
-app.use((err, req, res, next) => {
-  if (err && (err.type === 'entity.parse.failed' || err instanceof SyntaxError)) {
-    return res.status(400).json({ error: 'Invalid JSON payload' });
-  }
-  next(err);
+// 1. Database Connection
+// This uses MONGO_URI from your Vercel Environment Variables
+const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
+
+mongoose.connect(mongoUri)
+  .then(() => console.log('✅ Connected to MongoDB'))
+  .catch(err => console.error('❌ MongoDB connection error:', err));
+
+// 2. Note Schema & Model
+const noteSchema = new mongoose.Schema({
+  title: String,
+  content: String,
+  createdAt: { type: Date, default: Date.now }
 });
 
-// 3. Health check
-app.get('/', (req, res) => res.json({ ok: true, message: "Backend is live!" }));
+const Note = mongoose.model('Note', noteSchema);
 
-// 4. API routes
-app.use('/api/notes', notesRouter);
+// 3. API Routes
+app.get('/', (req, res) => res.json({ message: "Backend is live!" }));
 
-// 5. Database Connection Logic
-const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI;
-
-const connectDB = async () => {
-  if (mongoose.connection.readyState >= 1) return; 
+// Get all notes
+app.get('/api/notes', async (req, res) => {
   try {
-    await mongoose.connect(mongoUri);
-    console.log('✅ Connected to MongoDB');
+    const notes = await Note.find().sort({ createdAt: -1 });
+    res.json(notes);
   } catch (err) {
-    console.error('❌ MongoDB connection error:', err);
+    res.status(500).json({ error: err.message });
   }
-};
-
-// 6. Connect to DB on every request
-app.use(async (req, res, next) => {
-  await connectDB();
-  next();
 });
 
-// 7. Local Server setup
-if (process.env.NODE_ENV !== 'production') {
-  const port = process.env.PORT || 3001;
-  connectDB().then(() => {
-    app.listen(port, () => console.log(`🚀 Local Server running on port ${port}`));
-  });
-}
+// Add a note
+app.post('/api/notes', async (req, res) => {
+  try {
+    const newNote = new Note(req.body);
+    const savedNote = await newNote.save();
+    res.status(201).json(savedNote);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
 
-module.exports = app;
+// Delete a note
+app.delete('/api/notes/:id', async (req, res) => {
+  try {
+    await Note.findByIdAndDelete(req.params.id);
+    res.json({ message: "Note deleted" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
